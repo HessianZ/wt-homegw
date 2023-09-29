@@ -3,13 +3,17 @@
 idf_component_register(
         SRC_DIRS
         "."
-#        "app"
-#        "system"
-        #        "http"
+        "app"
+        "system"
+        "http"
 
         INCLUDE_DIRS
         "."
-#        "app"
-#        "system"
-        #        "http"
+        "app"
+        "system"
+        "http"
+
+        EMBED_TXTFILES server_root_cert.pem
 )
+
+spiffs_create_partition_image(storage ../spiffs FLASH_IN_PROJECT)

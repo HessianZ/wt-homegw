@@ -1,0 +1,36 @@
+#include <stdlib.h>
+
+#include "nvs_flash.h"
+#include "esp_log.h"
+#include "app.h"
+#include "wifi_mgr.h"
+#include "mqtt.h"
+#include "http_server.h"
+#include "file_manager.h"
+#include "bsp.h"
+#include "settings.h"
+
+
+void app_main(void) {
+    // Initialize NVS
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
+    ESP_ERROR_CHECK(settings_read_parameter_from_nvs());
+    settings_dump();
+
+    bsp_spiffs_mount();
+
+    TraverseDir("/spiffs", 0, 1);
+
+    wifi_mgr_start();
+
+    xTaskCreate(mqtt_task, "mqtt_task", 4096, NULL, 3, NULL);
+    xTaskCreate(http_server_init, "http_server_task", 4096, NULL, 3, NULL);
+
+    app_espnow_init();
+}
