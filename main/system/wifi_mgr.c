@@ -39,9 +39,17 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 
         ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
         ESP_LOGI(TAG, "Connected with IP Address:" IPSTR, IP2STR(&event->ip_info.ip));
-    }
 
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+        uint8_t ch = 0;
+        wifi_second_chan_t secondChan;
+        esp_wifi_get_channel(&ch, &secondChan);
+        ESP_LOGI(TAG, "Connected with channel: %d - %d", ch, secondChan);
+
+    } if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+        ESP_ERROR_CHECK(esp_wifi_set_channel(CONFIG_ESPNOW_CHANNEL, WIFI_SECOND_CHAN_NONE));
+
+        ESP_LOGI(TAG, "esp_wifi_set_channel to %d ...", CONFIG_ESPNOW_CHANNEL);
+
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_WIFI_READY) {
         ESP_ERROR_CHECK(esp_wifi_set_protocol(WIFI_IF_STA, WIFI_PROTOCOL_11B | WIFI_PROTOCOL_11G));

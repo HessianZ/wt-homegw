@@ -173,6 +173,7 @@ void mqtt_task(void *pvParameters)
 
 void mqtt_publish(char *topic, char* content)
 {
+    ESP_LOGI(TAG, "mqtt_publish: %s, %s", topic, content);
     esp_mqtt_client_publish(g_client, topic, content, 0, 1, 0);
 }
 

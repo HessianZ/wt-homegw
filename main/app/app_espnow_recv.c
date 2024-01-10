@@ -95,7 +95,7 @@ static void app_espnow_task(void *pvParameter) {
 
                 ESP_LOGI(TAG,
                          "Report{version: %d, battery: %d, temperature: %.2f, humidity: %.2f, light: %d, earthHumidity: %d}",
-                         report.version, report.battery, report.temperature, report.humidity, report.light,
+                         report.header.version, report.battery, report.temperature, report.humidity, report.light,
                          report.earthHumidity);
 
                 if (ret == WT_HOMEGW_ESPNOW_DATA_BROADCAST) {

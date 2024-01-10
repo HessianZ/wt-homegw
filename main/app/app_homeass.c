@@ -61,13 +61,14 @@ typedef struct {
 static void ha_entity_config_push(ha_sensor_ent_t *ent)
 {
     char ent_id[34];
-    sprintf(ent_id, "%s-%s", ent->dev->id, ent->name);
+    sprintf(ent_id, "%s-%s", ent->dev->id, ent->valueName);
 
     char topic[64] = {0};
     sprintf(topic, "homeassistant/sensor/%s/config", ent_id);
 
     char *fmt = "{"
-                "\"device_class\": \"%s\""
+                "\"name\": \"%s\""
+                ",\"device_class\": \"%s\""
                 ",\"state_topic\": \"homeassistant/sensor/%s/state\""
                 ",\"unit_of_measurement\": \"%s\""
                 ",\"value_template\": \"{{value_json.%s}}\""
@@ -75,8 +76,8 @@ static void ha_entity_config_push(ha_sensor_ent_t *ent)
                 ",\"device\": {\"identifiers\": [\"%s\"], \"name\": \"%s\" }"
                 "}";
 
-    char *json = malloc(256);
-    sprintf(json, fmt, ent->deviceClass, ent->dev->id, ent->unit, ent->valueName, ent_id, ent->dev->id, ent->dev->name);
+    char *json = calloc(1, 512);
+    sprintf(json, fmt, ent->name, ent->deviceClass, ent->dev->id, ent->unit, ent->valueName, ent_id, ent->dev->id, ent->dev->name);
     mqtt_publish(topic, json);
     free(json);
 }
@@ -96,7 +97,7 @@ static void ha_gardener_config_push(char *dev_id)
     ha_sensor_ent_t ent = {
             .dev = &dev,
             .deviceClass = "temperature",
-            .name = "Temperature",
+            .name = "气温",
             .unit = "°C",
             .valueName = "temperature"
     };
@@ -104,28 +105,28 @@ static void ha_gardener_config_push(char *dev_id)
 
     // 空气湿度
     ent.deviceClass = "humidity";
-    ent.name = "Humidity";
+    ent.name = "空气湿度";
     ent.unit = "%";
     ent.valueName = "humidity";
     ha_entity_config_push(&ent);
 
     // 土壤湿度
     ent.deviceClass = "humidity";
-    ent.name = "EarthHumidity";
-    ent.unit = "%";
+    ent.name = "土壤湿度";
+    ent.unit = "";
     ent.valueName = "earthHumidity";
     ha_entity_config_push(&ent);
 
     // 光照强度
     ent.deviceClass = "illuminance";
-    ent.name = "illuminance";
+    ent.name = "光照强度";
     ent.unit = "lx";
     ent.valueName = "illuminance";
     ha_entity_config_push(&ent);
 
     // 电池电量
     ent.deviceClass = "battery";
-    ent.name = "battery";
+    ent.name = "电量";
     ent.unit = "%";
     ent.valueName = "battery";
     ha_entity_config_push(&ent);
@@ -168,8 +169,8 @@ void ha_gardener_value_push(char *dev_id, wt_homegw_report_data_t *report)
                 ",\"earthHumidity\": %d"
                 "}";
 
-    char *json = malloc(256);
-    sprintf(json, fmt, report->version, report->battery, report->temperature, report->humidity, report->light, report->earthHumidity);
+    char *json = calloc(1, 512);
+    sprintf(json, fmt, report->header.version, report->battery, report->temperature, report->humidity, report->light, report->earthHumidity);
     mqtt_publish(topic, json);
     free(json);
 }

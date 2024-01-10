@@ -62,13 +62,16 @@ typedef struct {
 
 
 typedef struct {
-    uint8_t version;
+    struct {
+        uint8_t type;
+        uint8_t version;
+    } header;
     uint8_t battery;
     float temperature;
     float humidity;
     uint16_t light;
     uint16_t earthHumidity;
-} __attribute__((packed)) wt_homegw_report_data_t;
+} wt_homegw_report_data_t;
 
 
 esp_err_t app_espnow_init(void);
